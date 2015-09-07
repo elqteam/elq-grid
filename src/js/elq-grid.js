@@ -1,6 +1,10 @@
 "use strict";
 
+var StyleHandler = require("./style-handler.js");
+
 module.exports = function ElqGrid(options) {
+    var styleHandler = StyleHandler();
+
     function start(elements) {
         function getClasses(elements) {
             var classes = [];
@@ -12,46 +16,17 @@ module.exports = function ElqGrid(options) {
                 classes = classes.concat(matches);
             }
 
-            classes = classes.filter(function onlyUnique(value, index) {
-                return classes.indexOf(value) === index;
-            });
-
             return classes;
         }
 
-        function getClassesInformation(classes) {
+        function getBreakpoints(classes) {
             return classes.map(function (c) {
                 var parts = c.split("-");
                 var breakpoint = parseInt(parts[2], 10);
-                var column = parseInt(parts[3], 10);
-
-                return {
-                    breakpoint: breakpoint,
-                    column: column,
-                    class: c
-                };
+                return breakpoint;
+            }).filter(function onlyUnique(value, index, self) {
+                return self.indexOf(value) === index;
             });
-        }
-
-        function generateColumnStyleString(classesInformation) {
-            var style = "";
-
-            classesInformation.forEach(function (ci) {
-                var width = Math.round(ci.column/12 * 10000000000) / 100000000;
-
-                style += "\n";
-                style += ".elq-min-width-" + ci.breakpoint + "." + ci.class + " {\n";
-                style += "    width: " + width + "%;\n";
-                style += "}\n";
-            });
-
-            return style;
-        }
-
-        function injectStyle(style) {
-            var styleElement = document.createElement("style");
-            styleElement.innerHTML = style;
-            document.head.appendChild(styleElement);
         }
 
         function elqifyElements(elements) {
@@ -63,11 +38,11 @@ module.exports = function ElqGrid(options) {
                     element.setAttribute("elq-mirror", "");
                 } else if (element.className.indexOf("elq-row") >= 0) {
                     var classes = getClasses(element.children);
-                    var classesInformation = getClassesInformation(classes);
+                    var breakpoints = getBreakpoints(classes);
                     var widthBreakpoints = "";
 
-                    classesInformation.forEach(function (ci) {
-                        widthBreakpoints += ci.breakpoint + " ";
+                    breakpoints.forEach(function (breakpoint) {
+                        widthBreakpoints += breakpoint + " ";
                     });
 
                     widthBreakpoints = widthBreakpoints.trim();
@@ -80,21 +55,13 @@ module.exports = function ElqGrid(options) {
         }
 
         var classes = getClasses(elements);
-        var classesInformation = getClassesInformation(classes);
+        var breakpoints = getBreakpoints(classes);
 
-        classesInformation = classesInformation.sort(function (a, b) {
-            var value = a.breakpoint - b.breakpoint;
-
-            if (value === 0) {
-                return a.column - b.column;
-            }
-
-            return value;
+        breakpoints = breakpoints.sort(function (a, b) {
+            return a - b;
         });
 
-        var style = generateColumnStyleString(classesInformation);
-        injectStyle(style);
-
+        styleHandler.applyStyles(breakpoints);
         elqifyElements(elements);
     }
 
