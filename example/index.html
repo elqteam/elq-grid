@@ -36,7 +36,7 @@
     <body>
         <div class="container">
             <div class="elq-row show-grid">
-                <div class="elq-col-500-6 elq-col-1000-3 elq-col-200-2">.elq-col-500-6 .elq-col-1000-3</div>
+                <div class="elq-col-500-6 elq-col-1000-3 elq-col-200-2"><span class="elq-hidden-200-down">.elq-col-500-6 .elq-col-1000-3</span></div>
                 <div class="elq-col-500-6 elq-col-1000-3 elq-col-200-10">.elq-col-500-6 .elq-col-1000-3</div>
                 <div class="elq-col-1000-3">
                     <div class="elq-row show-grid">
@@ -54,15 +54,13 @@
         <script src="../build/elq-grid.js"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function(event) { 
-                var elements = document.querySelectorAll("[class^=elq-col-], [class^=elq-row]");
-
                 var elqGrid = ElqGrid();
-                elqGrid.start(elements);
+                elqGrid.start(document);
 
                 var elq = Elq();
                 elq.use(elqBreakpoints);
                 elq.use(elqMirror);
-                elq.start(elements);
+                elq.start(document.querySelectorAll("[elq]"));
             });
         </script>
     </body>

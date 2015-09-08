@@ -3,7 +3,7 @@
 module.exports = function StyleHandler() {
     var breakpointStyleElements = {};
 
-    function applyStyles(breakpoints) {
+    function applyGridStyles(breakpoints) {
         function getColumnsStyleString(breakpoint) {
             var style = "";
 
@@ -36,7 +36,25 @@ module.exports = function StyleHandler() {
         });
     }
 
+    function applyUtilityStyles(breakpoints) {
+        function getColumnsStyleString(breakpoint) {
+            var elqBreakpoint = ".elq-min-width-" + breakpoint;
+
+            var style = "";
+
+            style += ".elq-visible-" + breakpoint + " { display: none !important; }";
+            style += elqBreakpoint + ".elq-visible-" + breakpoint + " { display: block !important; }";
+            style += ".table" + elqBreakpoint + ".elq-visible-" + breakpoint + " { display: table !important; }";
+            style += ".tr" + elqBreakpoint + ".elq-visible-" + breakpoint + " { display: table-row !important; }";
+            style += ".th" + elqBreakpoint + ".elq-visible-" + breakpoint + " { display: table-cell !important; }";
+            style += ".td" + elqBreakpoint + ".elq-visible-" + breakpoint + " { display: table-cell !important; }";
+
+            return style;
+        }
+    }
+
     return {
-        applyStyles: applyStyles
+        applyGridStyles: applyGridStyles,
+        applyUtilityStyles: applyUtilityStyles
     };
 };
