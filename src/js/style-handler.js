@@ -1,14 +1,69 @@
 "use strict";
 
-module.exports = function StyleHandler() {
+module.exports = function StyleHandler(options) {
+    var utils = options.utils;
+
+    var gridBreakpoints = [];
     var gridBreakpointStyleElements = {};
     var utilsBreakpointStyleElements = {};
+    var utilsBreakpoints = [];
 
-    function injectStyle(style) {
+    function injectStyle(style, method) {
+        method = method || function (element) {
+            document.head.appendChild(element);
+        };
+
         var styleElement = document.createElement("style");
         styleElement.innerHTML = style;
-        document.head.appendChild(styleElement);
+        method(styleElement);
         return styleElement;
+    }
+
+    function injectStyleAfterElement(style, element) {
+        return injectStyle(style, function (styleElement) {
+            document.head.insertBefore(styleElement, element.nextSibling);
+        });
+    }
+
+    function injectStyleBeforeElement(style, element) {
+        return injectStyle(style, function (styleElement) {
+            document.head.insertBefore(styleElement, element);
+        });
+    }
+
+    function applyBreakpointStyle(breakpointElements, breakpoints, breakpoint, styleString, injectFirstStyle) {
+        if (!breakpointElements[breakpoint]) {
+            var directlyLesserIndex = -1;
+            var directlyGreaterIndex = -1;
+
+            for (var i = breakpoints.length - 1; i >= 0; i--) {
+                if (breakpoints[i] < breakpoint) {
+                    directlyLesserIndex = i;
+                    break;
+                }
+            }
+
+            if (directlyLesserIndex + 1 < breakpoints.length) {
+                directlyGreaterIndex = directlyLesserIndex + 1;
+            }
+
+            var injectedElement;
+
+            if (directlyLesserIndex >= 0) {
+                var directlyLesserElement = breakpointElements[breakpoints[directlyLesserIndex]];
+                injectedElement = injectStyleAfterElement(styleString, directlyLesserElement);
+                breakpoints.splice(directlyLesserIndex + 1, 0, breakpoint);
+            } else if (directlyGreaterIndex >= 0) {
+                var directlyGreaterElement = breakpointElements[breakpoints[directlyGreaterIndex]];
+                injectedElement = injectStyleBeforeElement(styleString, directlyGreaterElement);
+                breakpoints.splice(directlyGreaterIndex, 0, breakpoint);
+            } else {
+                injectedElement = injectFirstStyle(styleString);
+                breakpoints.push(breakpoint);
+            }
+
+            breakpointElements[breakpoint] = injectedElement;
+        }
     }
 
     function applyGridStyles(breakpoints) {
@@ -30,10 +85,14 @@ module.exports = function StyleHandler() {
         }
 
         breakpoints.forEach(function (breakpoint) {
-            if (!gridBreakpointStyleElements[breakpoint]) {
-                var columnsStyleString = getColumnsStyleString(breakpoint);
-                gridBreakpointStyleElements[breakpoint] = injectStyle(columnsStyleString);
-            }
+            applyBreakpointStyle(gridBreakpointStyleElements, gridBreakpoints, breakpoint, getColumnsStyleString(breakpoint), function injectFirstStyle(style) {
+                if (utilsBreakpoints.length) {
+                    var firstUtilsElement = utilsBreakpointStyleElements[utilsBreakpoints[0]];
+                    return injectStyleBeforeElement(style, firstUtilsElement);
+                } else {
+                    return injectStyle(style);
+                }
+            });
         });
     }
 
@@ -48,10 +107,14 @@ module.exports = function StyleHandler() {
         }
 
         breakpoints.forEach(function (breakpoint) {
-            if (!utilsBreakpointStyleElements[breakpoint]) {
-                var styleString = getStyleString(breakpoint);
-                utilsBreakpointStyleElements[breakpoint] = injectStyle(styleString);
-            }
+            applyBreakpointStyle(utilsBreakpointStyleElements, utilsBreakpoints, breakpoint, getStyleString(breakpoint), function injectFirstStyle(style) {
+                if (gridBreakpoints.length) {
+                    var lastGridElement = gridBreakpointStyleElements[gridBreakpoints[gridBreakpoints.length - 1]];
+                    return injectStyleAfterElement(style, lastGridElement);
+                } else {
+                    return injectStyle(style);
+                }
+            });
         });
     }
 

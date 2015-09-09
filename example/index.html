@@ -53,18 +53,48 @@
             <h2 class="elq-hidden-500-down elq-hidden-800-up">I'm only visible between 500 and 800 pixels.</h2>
         </div>
 
+        <br>
+        <button onclick="addGrid();">Add grid</button>
+        <button onclick="addUtils();">Add utils</button>
+        <br>
+        <br>
+
         <script src="../node_modules/elq/dist/elq.js"></script>
         <script src="../node_modules/elq/dist/elq-breakpoints.js"></script>
         <script src="../node_modules/elq/dist/elq-mirror.js"></script>
         <script src="../build/elq-grid.js"></script>
         <script>
-            document.addEventListener("DOMContentLoaded", function(event) { 
-                var elqGrid = ElqGrid();
-                elqGrid.start(document);
+            var elqGrid = ElqGrid();
 
-                var elq = Elq();
-                elq.use(elqBreakpoints);
-                elq.use(elqMirror);
+            var elq = Elq();
+            elq.use(elqBreakpoints);
+            elq.use(elqMirror);
+
+            function addGrid() {
+                var div = document.createElement("div");
+
+                div.innerHTML = ""
+                + "<div class='elq-row show-grid'>"
+                    + "<div class='elq-col-100-6 elq-col-600-6 elq-col-1100-6'>.elq-col-600-6</div>"
+                    + "<div class='elq-col-100-6 elq-col-600-6 elq-col-1100-6'>.elq-col-600-6</div>"
+                + "</div>";
+
+                document.body.appendChild(div);
+                elqGrid.start(document);
+                elq.start(document.querySelectorAll("[elq]"));
+            }
+
+            function addUtils() {
+                var div = document.createElement("div");
+
+                div.innerHTML = "<div class='elq-hidden-100-down elq-hidden-600-up'>elq-hidden-100-down elq-hidden-600-up</div>";
+                document.body.appendChild(div);
+                elqGrid.start(document);
+                elq.start(document.querySelectorAll("[elq]"));
+            }
+
+            document.addEventListener("DOMContentLoaded", function(event) { 
+                elqGrid.start(document);
                 elq.start(document.querySelectorAll("[elq]"));
             });
         </script>

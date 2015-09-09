@@ -6,7 +6,9 @@ var GridHandler = require("./feature/grid-handler.js");
 var ResponsiveUtilsHandler = require("./feature/responsive-utils.js");
 
 module.exports = function ElqGrid(options) {
-    var styleHandler = StyleHandler();
+    var styleHandler = StyleHandler({
+        utils: utils
+    });
     var gridHandler = GridHandler({
         styleHandler: styleHandler,
         utils: utils
