@@ -4,7 +4,7 @@ module.exports = function ElqGridHandler(options) {
     var styleHandler = options.styleHandler;
     var utils = options.utils;
 
-    function start(elements) {
+    function start(root) {
         function getClasses(element) {
             var regexp = /elq\-hidden\-\d+\-(down|up)/g;
             return utils.getClassesByRegexp(element, regexp);
@@ -14,42 +14,63 @@ module.exports = function ElqGridHandler(options) {
             return utils.unique(classes.map(function (c) {
                 var parts = c.split("-");
                 var breakpoint = parseInt(parts[2], 10);
-                return {
-                    breakpoint: breakpoint,
-                    direction: parts[3]
-                };
+                return breakpoint;
             }));
         }
 
-        function elqifyElements(elements) {
-            for (var i = 0; i < elements.length; i++) {
-                var element = elements[i];
+        function elqifyElement(element, breakpoints) {
+            var widthBreakpoints = breakpoints.reduce(function (acc, breakpoint) {
+                return acc + breakpoint + " ";
+            }, "");
 
-                if (element.className.indexOf("elq-hidden") >= 0) {
-                    var classes = getClasses(element.children);
-                    var breakpoints = getBreakpoints(classes);
-                    var widthBreakpoints = "";
+            widthBreakpoints = widthBreakpoints.trim();
 
-                    breakpoints.forEach(function (breakpoint) {
-                        widthBreakpoints += breakpoint + " ";
-                    });
+            element.setAttribute("elq", "");
+            element.setAttribute("elq-mirror", "");
 
-                    widthBreakpoints = widthBreakpoints.trim();
+            var parent = element.parentElement;
+            var parentBreakpoints = parent.getAttribute("elq-breakpoints-widths");
+            var parentBreakpointsString = widthBreakpoints;
+            var options = "";
 
-                    element.setAttribute("elq", "");
-                    element.setAttribute("elq-breakpoints", "");
-                    element.setAttribute("elq-breakpoints-widths", widthBreakpoints);
-                }
+            if (parentBreakpoints) {
+                parentBreakpoints = parentBreakpoints.split(" ").map(function (bp) {
+                    return parseInt(bp, 10);
+                });
+
+                var mergedBreakpoints = utils.sortNumbers(utils.unique(parentBreakpoints.concat(breakpoints)));
+                parentBreakpointsString = mergedBreakpoints.reduce(function (acc, breakpoint) {
+                    return acc + breakpoint + " ";
+                }, "").trim();
+
+                options = parent.getAttribute("elq-breakpoints");
+            } else {
+                options += "noclasses ";
             }
+
+            options = options.trim();
+
+            parent.setAttribute("elq", "");
+            parent.setAttribute("elq-breakpoints", options);
+            parent.setAttribute("elq-breakpoints-widths", parentBreakpointsString);
         }
 
-        var classes = getClasses(elements);
-        var breakpoints = getBreakpoints(classes);
+        var elements = Array.prototype.slice.call(root.querySelectorAll("[class^=elq-hidden]"));
+        
+        var allBreakpoints = [];
 
-        breakpoints = utils.sortNumbers(breakpoints);
+        elements.forEach(function (element) {
+            var classes = getClasses(element);
 
-        styleHandler.applyGridStyles(breakpoints);
-        elqifyElements(elements);
+            var breakpoints = getBreakpoints(classes);
+            breakpoints = utils.sortNumbers(breakpoints);
+            elqifyElement(element, breakpoints);
+            allBreakpoints = allBreakpoints.concat(breakpoints);
+        });
+
+        allBreakpoints = utils.sortNumbers(utils.unique(allBreakpoints));
+
+        styleHandler.applyResponsiveUtilsStyles(allBreakpoints);
     }
 
     return {
