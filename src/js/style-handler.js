@@ -73,7 +73,7 @@ module.exports = function StyleHandler(options) {
             for (var i = 1; i <= 12; i++) {
                 var width = Math.round(i/12 * 10000000000) / 100000000;
                 var columnClass = ".elq-col-" + breakpoint + "-" + i;
-                var elqBreakpoint = ".elq-min-width-" + breakpoint;
+                var elqBreakpoint = ".elq-min-width-" + breakpoint + "px";
 
                 style += "\n";
                 style += elqBreakpoint + columnClass + " {\n";
@@ -100,8 +100,8 @@ module.exports = function StyleHandler(options) {
         function getStyleString(breakpoint) {
             var style = "";
 
-            style += ".elq-min-width-" + breakpoint + ".elq-hidden-" + breakpoint + "-up { display: none !important; }\n";
-            style += ".elq-max-width-" + breakpoint + ".elq-hidden-" + breakpoint + "-down { display: none !important; }";
+            style += ".elq-min-width-" + breakpoint + "px" + ".elq-hidden-" + breakpoint + "-up { display: none !important; }\n";
+            style += ".elq-max-width-" + breakpoint + "px" + ".elq-hidden-" + breakpoint + "-down { display: none !important; }";
 
             return style;
         }
