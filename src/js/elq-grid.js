@@ -21,6 +21,11 @@ module.exports = function ElqGrid(options) {
     function start(root) {
         root = root || document;
 
+        // Support jQyery-like DOM-wrappers.
+        if (root.length) {
+            root = root[0];
+        }
+
         gridHandler.start(root);
         responsiveUtilsHandler.start(root);
     }
