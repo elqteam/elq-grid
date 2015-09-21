@@ -55,7 +55,13 @@ module.exports = function ElqGridHandler(options) {
             parent.setAttribute("elq-breakpoints-widths", parentBreakpointsString);
         }
 
-        var elements = Array.prototype.slice.call(root.querySelectorAll("[class^=elq-hidden]"));
+        var elements = [];
+
+        if (root.className.indexOf("elq-hidden") !== -1) {
+            elements.push(root);
+        }
+
+        elements = elements.concat(Array.prototype.slice.call(root.querySelectorAll("[class*='elq-hidden']")));
         
         var allBreakpoints = [];
 

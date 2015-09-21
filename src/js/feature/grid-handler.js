@@ -38,7 +38,13 @@ module.exports = function ElqGridHandler(options) {
         function getGridElements(root) {
             var elements = [];
 
-            var rows = root.getElementsByClassName("elq-row");
+            var rows = [];
+
+            if (root.className.indexOf("elq-row") !== -1) {
+                rows.push(root);
+            }
+
+            rows = rows.concat(Array.prototype.slice.call(root.getElementsByClassName("elq-row")));
 
             for (var i = 0; i < rows.length; i++) {
                 var row = rows[i];
