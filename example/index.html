@@ -80,8 +80,8 @@
                 + "</div>";
 
                 document.body.appendChild(div);
-                elqGrid.start(document);
-                elq.start(document.querySelectorAll("[elq]"));
+                elqGrid.start(document.body);
+                elq.start(document.body.querySelectorAll("[elq]"));
             }
 
             function addUtils() {
@@ -89,13 +89,13 @@
 
                 div.innerHTML = "<div class='elq-hidden-100-down elq-hidden-600-up'>elq-hidden-100-down elq-hidden-600-up</div>";
                 document.body.appendChild(div);
-                elqGrid.start(document);
-                elq.start(document.querySelectorAll("[elq]"));
+                elqGrid.start(document.body);
+                elq.start(document.body.querySelectorAll("[elq]"));
             }
 
             document.addEventListener("DOMContentLoaded", function(event) { 
-                elqGrid.start(document);
-                elq.start(document.querySelectorAll("[elq]"));
+                elqGrid.start(document.body);
+                elq.start(document.body.querySelectorAll("[elq]"));
             });
         </script>
     </body>
