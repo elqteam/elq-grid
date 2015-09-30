@@ -52,10 +52,8 @@ module.exports = function ElqGridHandler(options) {
     }
 
     function start(elq, element) {
-        function elqifyColumnElement(rowElement, element) {
-            element.setAttribute("elq", "");
-            element.setAttribute("elq-mirror", "");
-            elq.pluginHandler.get("elq-mirror").mirror(element, rowElement);
+        function elqifyColumnElement(parent, element) {
+            elq.pluginHandler.get("elq-mirror").mirror(element, parent);
         }
 
         function elqifyRowElement(element, breakpoints) {
@@ -70,20 +68,24 @@ module.exports = function ElqGridHandler(options) {
             element.setAttribute("elq-breakpoints-widths", widthBreakpoints);
         }
 
-        if (isRow(element)) {
+        function startBreakpointElement(element) {
             // All elq-row elements need to detect resizes and also update breakpoints.
             element.elq.resizeDetection = true;
             element.elq.updateBreakpoints = true;
 
-            // Enable serialization unless some other system explicitly has disabled it.
-            if (element.elq.serialize !== false) {
-                element.elq.serialize = true;
+            // Disable serialization unless some other system explicitly has enabled it.
+            if (element.elq.serialize !== true) {
+                element.elq.serialize = false;
             }
+        }
+
+        if (isRow(element)) {
+            startBreakpointElement(element);
 
             // Disable cycle checks since the API for elq-grids prevents cycles (unless developer error).
             element.elq.cycleCheck = false;
 
-            // All children of a row should be converted to elq-mirror objects.
+            // All children of a row should be converted to elq-mirror elements that mirror the row element.
             for (var i = 0; i < element.children.length; i++) {
                 var child = element.children[i];
                 if (child.className.indexOf("elq-col") >= 0) {
@@ -91,8 +93,16 @@ module.exports = function ElqGridHandler(options) {
                 }
             }
         } else if (isCol(element)) {
-            if (!isRow(element.parentElement)) {
-                reporter.warn("elq-col elements without an elq-row parent is currently unsupported.");
+            var parent = element.parentElement;
+
+            if (!isRow(parent)) {
+                // elq-col elements do not need to be directly children of an elq-row element.
+                // Free elq-col elements should depend on the parent.
+                startBreakpointElement(parent);
+
+                // Cannot disable cycle checks since the API does not enforce any structure of the parent element.
+
+                elqifyColumnElement(parent, element);
             }
             //elqifyRowElement(row, breakpoints);
         } else {
