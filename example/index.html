@@ -59,16 +59,13 @@
         <br>
         <br>
 
-        <script src="../node_modules/elq/dist/elq.js"></script>
-        <script src="../node_modules/elq/dist/elq-breakpoints.js"></script>
-        <script src="../node_modules/elq/dist/elq-mirror.js"></script>
+        <script src="../node_modules/elq/build/elq.js"></script>
         <script src="../build/elq-grid.js"></script>
         <script>
-            var elqGrid = ElqGrid();
-
-            var elq = Elq();
-            elq.use(elqBreakpoints);
-            elq.use(elqMirror);
+            var elq = Elq({
+                cycleDetection: false
+            });
+            elq.use(elqGrid);
 
             function addGrid() {
                 var div = document.createElement("div");
@@ -94,8 +91,7 @@
             }
 
             document.addEventListener("DOMContentLoaded", function(event) { 
-                elqGrid.start(document.body);
-                elq.start(document.body.querySelectorAll("[elq]"));
+                elq.start(document.body.querySelectorAll("[elq], [class*='elq-row']")); // TODO: Want a nicer API
             });
         </script>
     </body>

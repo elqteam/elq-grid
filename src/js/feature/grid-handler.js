@@ -3,24 +3,59 @@
 module.exports = function ElqGridHandler(options) {
     var styleHandler = options.styleHandler;
     var utils = options.utils;
+    var reporter = options.reporter;
 
-    function start(root) {
-        function getClasses(element) {
-            var regexp = /elq\-col\-\d+\-\d\d?/g;
-            return utils.getClassesByRegexp(element, regexp);
+    function getGridElements(root) {
+        var elements = [];
+
+        var rows = [];
+
+        if (root.className.indexOf("elq-row") !== -1) {
+            rows.push(root);
         }
 
-        function getBreakpoints(classes) {
-            return utils.unique(classes.map(function (c) {
-                var parts = c.split("-");
-                var breakpoint = parseInt(parts[2], 10);
-                return breakpoint;
-            }));
+        rows = rows.concat(Array.prototype.slice.call(root.getElementsByClassName("elq-row")));
+
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+
+            var columns = [];
+            var children = row.children;
+            for (var j = 0; j < children.length; j++) {
+                var child = children[j];
+                if (child.className.indexOf("elq-col") >= 0) {
+                    columns.push(child);
+                }
+            }
+
+            elements.push({
+                row: row,
+                columns: columns
+            });
         }
 
-        function elqifyColumnElement(element) {
+        return elements;
+    }
+
+    function isRow(element) {
+        // TODO: Perhaps split classes by " " and then check so that we avoid getting matches for classes that contains elq-*.
+        return element.className.indexOf("elq-row") !== -1;
+    }
+
+    function isCol(element) {
+        // TODO: Perhaps split classes by " " and then check so that we avoid getting matches for classes that contains elq-*.
+        return element.className.indexOf("elq-col") !== -1;
+    }
+
+    function isGridElement(element) {
+        return isRow(element) || isCol(element);
+    }
+
+    function start(elq, element) {
+        function elqifyColumnElement(rowElement, element) {
             element.setAttribute("elq", "");
             element.setAttribute("elq-mirror", "");
+            elq.pluginHandler.get("elq-mirror").mirror(element, rowElement);
         }
 
         function elqifyRowElement(element, breakpoints) {
@@ -35,73 +70,86 @@ module.exports = function ElqGridHandler(options) {
             element.setAttribute("elq-breakpoints-widths", widthBreakpoints);
         }
 
-        function getGridElements(root) {
-            var elements = [];
+        if (isRow(element)) {
+            // All elq-row elements need to detect resizes and also update breakpoints.
+            element.elq.resizeDetection = true;
+            element.elq.updateBreakpoints = true;
 
-            var rows = [];
-
-            if (root.className.indexOf("elq-row") !== -1) {
-                rows.push(root);
+            // Enable serialization unless some other system explicitly has disabled it.
+            if (element.elq.serialize !== false) {
+                element.elq.serialize = true;
             }
 
-            rows = rows.concat(Array.prototype.slice.call(root.getElementsByClassName("elq-row")));
+            // Disable cycle checks since the API for elq-grids prevents cycles (unless developer error).
+            element.elq.cycleCheck = false;
 
-            for (var i = 0; i < rows.length; i++) {
-                var row = rows[i];
-
-                var columns = [];
-                var children = row.children;
-                for (var j = 0; j < children.length; j++) {
-                    var child = children[j];
-                    if (child.className.indexOf("elq-col") >= 0) {
-                        columns.push(child);
-                    }
+            // All children of a row should be converted to elq-mirror objects.
+            for (var i = 0; i < element.children.length; i++) {
+                var child = element.children[i];
+                if (child.className.indexOf("elq-col") >= 0) {
+                    elqifyColumnElement(element, child);
                 }
-
-                elements.push({
-                    row: row,
-                    columns: columns
-                });
             }
+        } else if (isCol(element)) {
+            if (!isRow(element.parentElement)) {
+                reporter.warn("elq-col elements without an elq-row parent is currently unsupported.");
+            }
+            //elqifyRowElement(row, breakpoints);
+        } else {
+            return;
+        }
+    }
 
-            return elements;
+    function getBreakpoints(element) {
+        function getClasses(element) {
+            var regexp = /elq\-col\-\d+\-\d\d?/g;
+            return utils.getClassesByRegexp(element, regexp);
         }
 
-        var gridsElements = getGridElements(root);
+        function getBreakpoints(classes) {
+            return utils.unique(classes.map(function (c) {
+                var parts = c.split("-");
+                var breakpoint = parseInt(parts[2], 10);
+                return breakpoint;
+            }));
+        }
 
-        var allBreakpoints = [];
+        if (!isRow(element)) {
+            return;
+        }
 
-        gridsElements.forEach(function (gridElement) {
-            var row = gridElement.row;
-            var columns = gridElement.columns;
-
-            var classes = columns.reduce(function (allClasses, column) {
-                return allClasses.concat(getClasses(column));
-            }, []);
-            
-
-            var breakpoints = utils.sortNumbers(getBreakpoints(classes));
-
-            elqifyRowElement(row, breakpoints);
-            columns.forEach(elqifyColumnElement);
-
-            allBreakpoints = allBreakpoints.concat(breakpoints);
-        });
-
-        allBreakpoints = utils.unique(allBreakpoints).sort(function (a, b) {
-            var diff = a.breakpoint - b.breakpoint;
-
-            if (diff === 0) {
-                //TODO: Second sorting on hidden or visible?
+        var columns = [];
+        var children = element.children;
+        for (var i = 0; i < children.length; i++) {
+            var child = children[i];
+            if (child.className.indexOf("elq-col") >= 0) {
+                columns.push(child);
             }
+        }
 
-            return diff;
+        var classes = columns.reduce(function (allClasses, column) {
+            return allClasses.concat(getClasses(column));
+        }, []);
+
+        var breakpoints = getBreakpoints(classes);
+
+        styleHandler.applyGridStyles(breakpoints);
+
+        breakpoints = breakpoints.map(function (bp) {
+            return {
+                dimension: "width",
+                pixelValue: bp,
+                value: bp,
+                type: "px"
+            };
         });
 
-        styleHandler.applyGridStyles(allBreakpoints);
+
+        return breakpoints;
     }
 
     return {
-        start: start
+        start: start,
+        getBreakpoints: getBreakpoints
     };
 };

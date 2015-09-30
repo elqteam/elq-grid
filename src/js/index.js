@@ -1,5 +1,5 @@
 "use strict";
 
-var ElqGrid = require("./elq-grid.js");
+var elqGrid = require("./elq-grid.js");
 
-module.exports = ElqGrid;
+module.exports = elqGrid;

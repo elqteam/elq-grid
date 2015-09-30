@@ -18,7 +18,7 @@ module.exports = function(grunt) {
                 dest: "build/elq-grid.js",
                 options: {
                     browserifyOptions: {
-                        standalone: "ElqGrid",
+                        standalone: "elqGrid",
                         debug: true
                     }
                 }
@@ -28,7 +28,7 @@ module.exports = function(grunt) {
                 dest: "dist/elq-grid.js",
                 options: {
                     browserifyOptions: {
-                        standalone: "ElqGrid"
+                        standalone: "elqGrid"
                     }
                 }
             }

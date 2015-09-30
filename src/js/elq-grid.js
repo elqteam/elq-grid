@@ -1,36 +1,51 @@
 "use strict";
 
+var packageJson = require("../../package.json");
 var StyleHandler = require("./style-handler.js");
 var utils = require("./utils.js");
 var GridHandler = require("./feature/grid-handler.js");
 var ResponsiveUtilsHandler = require("./feature/responsive-utils.js");
 
-module.exports = function ElqGrid(options) {
-    var styleHandler = StyleHandler({
-        utils: utils
-    });
-    var gridHandler = GridHandler({
-        styleHandler: styleHandler,
-        utils: utils
-    });
-    var responsiveUtilsHandler = ResponsiveUtilsHandler({
-        styleHandler: styleHandler,
-        utils: utils
-    });
+module.exports = {
+    getName: function () {
+        return "elq-grid";
+    },
+    getVersion: function () {
+        return packageJson.version;
+    },
+    isCompatible: function (elq) {
+        return parseInt(elq.getVersion().split(".")[1]) === 3;
+    },
+    make: function (elq, options) {
+        var styleHandler = StyleHandler({
+            utils: utils
+        });
+        var gridHandler = GridHandler({
+            styleHandler: styleHandler,
+            utils: utils,
+            reporter: elq.reporter
+        });
+        var responsiveUtilsHandler = ResponsiveUtilsHandler({
+            styleHandler: styleHandler,
+            utils: utils
+        });
 
-    function start(root) {
-        root = root || document;
-
-        // Support jQyery-like DOM-wrappers.
-        if (root.length) {
-            root = root[0];
+        function start(element) {
+            gridHandler.start(elq, element);
+            //responsiveUtilsHandler.start(root);
         }
 
-        gridHandler.start(root);
-        responsiveUtilsHandler.start(root);
-    }
+        function getBreakpoints(element) {
+            var breakpoints = [];
 
-    return {
-        start: start
-    };
+            breakpoints = breakpoints.concat(gridHandler.getBreakpoints(element));
+
+            return breakpoints;
+        }
+
+        return {
+            start: start,
+            getBreakpoints: getBreakpoints
+        };
+    }
 };
