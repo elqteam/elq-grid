@@ -52,10 +52,6 @@ module.exports = function ElqGridHandler(options) {
     }
 
     function start(elq, element) {
-        function elqifyColumnElement(parent, element) {
-            elq.pluginHandler.get("elq-mirror").mirror(element, parent);
-        }
-
         function startBreakpointElement(element) {
             // All elq-row elements need to detect resizes and also update breakpoints.
             element.elq.resizeDetection = true;
@@ -76,8 +72,8 @@ module.exports = function ElqGridHandler(options) {
             // All children of a row should be converted to elq-mirror elements that mirror the row element.
             for (var i = 0; i < element.children.length; i++) {
                 var child = element.children[i];
-                if (child.className.indexOf("elq-col") >= 0) {
-                    elqifyColumnElement(element, child);
+                if (isCol(child) >= 0) {
+                    elq.pluginHandler.get("elq-mirror").mirror(child, element);
                 }
             }
         } else if (isCol(element)) {
@@ -90,7 +86,7 @@ module.exports = function ElqGridHandler(options) {
 
                 // Cannot disable cycle checks since the API does not enforce any structure of the parent element.
 
-                elqifyColumnElement(parent, element);
+                elq.pluginHandler.get("elq-mirror").mirror(element, parent);
             }
         } else {
             return;
