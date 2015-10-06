@@ -56,6 +56,7 @@
         <br>
         <button onclick="addGrid();">Add grid</button>
         <button onclick="addUtils();">Add utils</button>
+        <button onclick="start();">Start</button>
         <br>
         <br>
 
@@ -89,8 +90,12 @@
                 elq.start(document.body.querySelectorAll("[elq]"));
             }
 
-            document.addEventListener("DOMContentLoaded", function(event) { 
+            function start() {
                 elq.start(document.body.querySelectorAll("[elq], [class*='elq-row'], [class*='elq-col'], [class*='elq-hidden']")); // TODO: Want a nicer API
+            }
+
+            document.addEventListener("DOMContentLoaded", function(event) {
+                start();
             });
         </script>
     </body>

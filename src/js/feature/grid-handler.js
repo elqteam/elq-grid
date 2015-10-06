@@ -72,7 +72,7 @@ module.exports = function ElqGridHandler(options) {
             // All children of a row should be converted to elq-mirror elements that mirror the row element.
             for (var i = 0; i < element.children.length; i++) {
                 var child = element.children[i];
-                if (isCol(child) >= 0) {
+                if (isCol(child)) {
                     elq.pluginHandler.get("elq-mirror").mirror(child, element);
                 }
             }
