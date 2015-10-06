@@ -30,22 +30,28 @@ module.exports = {
             utils: utils
         });
 
+        function getExtraElements(element) {
+            return responsiveUtilsHandler.getExtraElements(element);
+        }
+
         function start(element) {
             gridHandler.start(elq, element);
-            //responsiveUtilsHandler.start(root);
+            responsiveUtilsHandler.start(elq, element);
         }
 
         function getBreakpoints(element) {
             var breakpoints = [];
 
-            breakpoints = breakpoints.concat(gridHandler.getBreakpoints(element));
+            breakpoints = breakpoints.concat(gridHandler.getBreakpoints(element) || []);
+            breakpoints = breakpoints.concat(responsiveUtilsHandler.getBreakpoints(element) || []);
 
             return breakpoints;
         }
 
         return {
             start: start,
-            getBreakpoints: getBreakpoints
+            getBreakpoints: getBreakpoints,
+            getExtraElements: getExtraElements
         };
     }
 };

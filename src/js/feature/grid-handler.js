@@ -56,18 +56,6 @@ module.exports = function ElqGridHandler(options) {
             elq.pluginHandler.get("elq-mirror").mirror(element, parent);
         }
 
-        function elqifyRowElement(element, breakpoints) {
-            var widthBreakpoints = breakpoints.reduce(function (acc, breakpoint) {
-                return acc + breakpoint + " ";
-            }, "");
-
-            widthBreakpoints = widthBreakpoints.trim();
-
-            element.setAttribute("elq", "");
-            element.setAttribute("elq-breakpoints", "");
-            element.setAttribute("elq-breakpoints-widths", widthBreakpoints);
-        }
-
         function startBreakpointElement(element) {
             // All elq-row elements need to detect resizes and also update breakpoints.
             element.elq.resizeDetection = true;
@@ -104,7 +92,6 @@ module.exports = function ElqGridHandler(options) {
 
                 elqifyColumnElement(parent, element);
             }
-            //elqifyRowElement(row, breakpoints);
         } else {
             return;
         }
