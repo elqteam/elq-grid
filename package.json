@@ -4,7 +4,7 @@
   "description": "",
   "author": "",
   "dependencies": {
-    "elq": "*"
+    "elq": "^0.3.0"
   },
   "devDependencies": {
     "browserify": "^11.0.1",
