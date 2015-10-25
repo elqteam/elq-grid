@@ -58,7 +58,7 @@
         <br>
         <button onclick="addGrid();">Add grid</button>
         <button onclick="addUtils();">Add utils</button>
-        <button onclick="start();">Start</button>
+        <button onclick="activate();">Start</button>
         <br>
         <br>
 
@@ -80,7 +80,7 @@
                 + "</div>";
 
                 document.body.appendChild(div);
-                start();
+                activate();
             }
 
             function addUtils() {
@@ -88,15 +88,15 @@
 
                 div.innerHTML = "<div class='elq-hidden-100-down elq-hidden-600-up'>elq-hidden-100-down elq-hidden-600-up</div>";
                 document.body.appendChild(div);
-                start();
+                activate();
             }
 
-            function start() {
-                elq.start(document.body.querySelectorAll("[elq], [class*='elq-row'], [class*='elq-col'], [class*='elq-hidden']")); // TODO: Want a nicer API
+            function activate() {
+                elq.activate(document.body.querySelectorAll("[elq], [class*='elq-row'], [class*='elq-col'], [class*='elq-hidden']")); // TODO: Want a nicer API
             }
 
             document.addEventListener("DOMContentLoaded", function(event) {
-                start();
+                activate();
             });
         </script>
     </body>

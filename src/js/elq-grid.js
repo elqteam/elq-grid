@@ -34,9 +34,9 @@ module.exports = {
             return responsiveUtilsHandler.getExtraElements(element);
         }
 
-        function start(element) {
-            gridHandler.start(elq, element);
-            responsiveUtilsHandler.start(elq, element);
+        function activate(element) {
+            gridHandler.activate(elq, element);
+            responsiveUtilsHandler.activate(elq, element);
         }
 
         function getBreakpoints(element) {
@@ -49,7 +49,7 @@ module.exports = {
         }
 
         return {
-            start: start,
+            activate: activate,
             getBreakpoints: getBreakpoints,
             getExtraElements: getExtraElements
         };

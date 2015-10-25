@@ -20,7 +20,7 @@ module.exports = function ElqGridHandler(options) {
         return [element.parentElement];
     }
 
-    function start(elq, element) {
+    function activate(elq, element) {
         if (!isUtilElement(element)) {
             return;
         }
@@ -92,7 +92,7 @@ module.exports = function ElqGridHandler(options) {
     }
 
     return {
-        start: start,
+        activate: activate,
         getBreakpoints: getBreakpoints,
         getExtraElements: getExtraElements
     };

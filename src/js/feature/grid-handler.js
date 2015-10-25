@@ -51,8 +51,8 @@ module.exports = function ElqGridHandler(options) {
         return isRow(element) || isCol(element);
     }
 
-    function start(elq, element) {
-        function startBreakpointElement(element) {
+    function activate(elq, element) {
+        function activateBreakpointElement(element) {
             // All elq-row elements need to detect resizes and also update breakpoints.
             element.elq.resizeDetection = true;
             element.elq.updateBreakpoints = true;
@@ -64,7 +64,7 @@ module.exports = function ElqGridHandler(options) {
         }
 
         if (isRow(element)) {
-            startBreakpointElement(element);
+            activateBreakpointElement(element);
 
             // Disable cycle checks since the API for elq-grids prevents cycles (unless developer error).
             element.elq.cycleCheck = false;
@@ -82,7 +82,7 @@ module.exports = function ElqGridHandler(options) {
             if (!isRow(parent)) {
                 // elq-col elements do not need to be directly children of an elq-row element.
                 // Free elq-col elements should depend on the parent.
-                startBreakpointElement(parent);
+                activateBreakpointElement(parent);
 
                 // Cannot disable cycle checks since the API does not enforce any structure of the parent element.
 
@@ -142,7 +142,7 @@ module.exports = function ElqGridHandler(options) {
     }
 
     return {
-        start: start,
+        activate: activate,
         getBreakpoints: getBreakpoints
     };
 };
